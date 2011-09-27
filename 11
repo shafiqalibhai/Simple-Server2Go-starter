@@ -1,0 +1,154 @@
+#cs ----------------------------------------------------------------------------
+
+ AutoIt Version: 3.2.3.8
+ Author:         Rene Suhle, Gun-Food
+
+ Script Function:
+   Start server2Go with custom service like Tomcat or JBoss
+
+#ce ----------------------------------------------------------------------------
+
+; includes
+
+#include <GUIConstants.au3>
+
+; Script Start
+; GUI form init
+$form = GUICreate("Server2Go Startup GUI", 406, 343, 381, 257)
+
+; GUI Button define
+$btn_start_default = GUICtrlCreateButton("1. Start Server2Go default", 24, 128, 163, 25, 0)
+$btn_start_tomcat5 = GUICtrlCreateButton("2. Start Tomcat5 Server", 24, 176, 163, 25, 0)
+$btn_start_jboss = GUICtrlCreateButton("2. Start JBoss Server", 232, 176, 147, 25, 0)
+$btn_start_nophp = GUICtrlCreateButton("1. Start Server2Go no PHP", 232, 128, 147, 25, 0)
+$btn_stop_default = GUICtrlCreateButton("1. Stop Server2Go default", 24, 248, 163, 25, 0)
+$btn_stop_nophp = GUICtrlCreateButton("1. Stop Server2Go no PHP", 232, 248, 147, 25, 0)
+$btn_stop_tomcat5 = GUICtrlCreateButton("2. Stop Tomcat5 Server", 24, 288, 163, 25, 0)
+$btn_stop_jboss = GUICtrlCreateButton("2. Stop JBoss Server", 232, 288, 147, 25, 0)
+
+; GUI Label define
+$lb_or1 = GUICtrlCreateLabel("OR", 200, 176, 22, 17)
+$lb_or2 = GUICtrlCreateLabel("OR", 200, 136, 22, 17)
+$lb_after = GUICtrlCreateLabel("AFTER WORK", 168, 216, 86, 17)
+$lb_or3 = GUICtrlCreateLabel("OR", 200, 288, 22, 17)
+$lb_or4 = GUICtrlCreateLabel("OR", 200, 256, 22, 17)
+
+; GUI Label Fontsetting
+GUICtrlSetFont($lb_or1, 8, 800, 0, "MS Sans Serif")
+GUICtrlSetFont($lb_or2, 8, 800, 0, "MS Sans Serif")
+GUICtrlSetFont($lb_after, 8, 800, 0, "MS Sans Serif")
+GUICtrlSetFont($lb_or3, 8, 800, 0, "MS Sans Serif")
+GUICtrlSetFont($lb_or4, 8, 800, 0, "MS Sans Serif")
+
+; GUI Logo
+$logo = GUICtrlCreatePic(@ScriptDir & "\server\splash.jpg", 72, 8, 260, 100, BitOR($SS_NOTIFY,$WS_GROUP))
+
+; GUI disable Tomcat5 and JBoss Buttons without running server2go
+GUICtrlSetState($btn_start_jboss, $GUI_DISABLE)
+GUICtrlSetState($btn_stop_jboss, $GUI_DISABLE)
+GUICtrlSetState($btn_start_tomcat5, $GUI_DISABLE)
+GUICtrlSetState($btn_stop_tomcat5, $GUI_DISABLE)
+
+; GUI disable Stop buttons without running server2go
+GUICtrlSetState($btn_stop_default, $GUI_DISABLE)
+GUICtrlSetState($btn_stop_nophp, $GUI_DISABLE)
+
+; Show GUI
+GUISetState(@SW_SHOW)
+
+; Define vars to get states
+
+$s2g_default_running = False
+$s2g_nophp_running = False
+$s2g_tomcat5_running = False
+$s2g_jboss_running = False
+
+; Set Adminrights
+RunAsSet("Administrator", [DOMAIN], [PASSWORD]) <==== You have to change this!
+
+; Wait for Input
+While 1
+   $nMsg = GUIGetMsg()
+   Switch $nMsg
+      Case $GUI_EVENT_CLOSE
+         Exit
+      
+      Case $btn_start_default
+         GUICtrlSetState($btn_start_nophp, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_nophp, $GUI_DISABLE)   
+         GUICtrlSetState($btn_stop_default, $GUI_ENABLE)         
+         GUICtrlSetState($btn_start_tomcat5, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_jboss, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_default, $GUI_DISABLE)
+         $s2g_default_running = True
+         run(@ScriptDir & "\Server2Go.exe",@ScriptDir)
+         
+      Case $btn_start_nophp
+         GUICtrlSetState($btn_start_default, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_default, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_nophp, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_tomcat5, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_jboss, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_nophp, $GUI_DISABLE)
+         $s2g_nophp_running = True
+         
+      Case $btn_stop_default      
+         GUICtrlSetState($btn_start_nophp, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_default, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_tomcat5, $GUI_DISABLE)
+         GUICtrlSetState($btn_start_jboss, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_default, $GUI_DISABLE)
+         $s2g_default_running = False
+         
+      Case $btn_stop_nophp      
+         GUICtrlSetState($btn_start_default, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_nophp, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_tomcat5, $GUI_DISABLE)
+         GUICtrlSetState($btn_start_jboss, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_nophp, $GUI_DISABLE)
+         $s2g_nophp_running = False
+         
+      Case $btn_start_tomcat5
+         GUICtrlSetState($btn_start_jboss, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_jboss, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_tomcat5, $GUI_ENABLE)
+         GUICtrlSetState($btn_stop_default, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_nophp, $GUI_DISABLE)
+         GUICtrlSetState($btn_start_tomcat5, $GUI_DISABLE)
+         $s2g_tomcat5_running = True
+         run(@ScriptDir & "\server\Tomcat5\bin\startup.bat", @ScriptDir & "\server\Tomcat5\bin")
+         
+      Case $btn_start_jboss
+         GUICtrlSetState($btn_start_tomcat5, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_tomcat5, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_jboss, $GUI_ENABLE)
+         GUICtrlSetState($btn_stop_default, $GUI_DISABLE)
+         GUICtrlSetState($btn_stop_nophp, $GUI_DISABLE)
+         GUICtrlSetState($btn_start_jboss, $GUI_DISABLE)
+         $s2g_jboss_running = True
+         
+      Case $btn_stop_tomcat5
+         GUICtrlSetState($btn_start_jboss, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_tomcat5, $GUI_ENABLE)
+         GUICtrlSetState($btn_stop_tomcat5, $GUI_DISABLE)
+         if ($s2g_default_running == true) Then
+            GUICtrlSetState($btn_stop_default,$GUI_ENABLE)
+         elseif ($s2g_nophp_running == true) Then
+            GUICtrlSetState($btn_stop_nophp,$GUI_ENABLE)
+         endIf
+         run(@ScriptDir & "\server\Tomcat5\bin\shutdown.bat", @ScriptDir & "\server\Tomcat5\bin")
+         $s2g_tomcat5_running = False
+         
+      Case $btn_stop_jboss
+         GUICtrlSetState($btn_start_tomcat5, $GUI_ENABLE)
+         GUICtrlSetState($btn_start_jboss, $GUI_ENABLE)
+         GUICtrlSetState($btn_stop_jboss, $GUI_DISABLE)
+         if ($s2g_default_running == true) Then
+            GUICtrlSetState($btn_stop_default,$GUI_ENABLE)
+         elseif ($s2g_nophp_running == true) Then
+            GUICtrlSetState($btn_stop_nophp,$GUI_ENABLE)
+         EndIf
+         $s2g_jboss_running = False
+      
+   EndSwitch
+WEnd 
